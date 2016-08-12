@@ -1,5 +1,5 @@
 import math
-import random 
+import random
 
 
 """
@@ -8,6 +8,7 @@ for the book A Programmer's Guide to Data Mining"
 http://www.guidetodatamining.com
 
 """
+
 
 def getMedian(alist):
     """get median of list"""
@@ -18,7 +19,7 @@ def getMedian(alist):
         return tmp[alen // 2]
     else:
         return (tmp[alen // 2] + tmp[(alen // 2) - 1]) / 2
-    
+
 
 def normalizeColumn(column):
     """normalize the values of a column using Modified Standard Score
@@ -34,7 +35,7 @@ class kClusterer:
     This clusterer assumes that the first column of the data is a label
     not used in the clustering. The other columns contain numeric data
     """
-    
+
     def __init__(self, filename, k):
         """ k is the number of clusters to make
         This init method:
@@ -70,11 +71,11 @@ class kClusterer:
             toggle = 0
             for cell in range(self.cols):
                 if toggle == 0:
-                   self.data[cell].append(cells[cell])
-                   toggle = 1
+                    self.data[cell].append(cells[cell])
+                    toggle = 1
                 else:
                     self.data[cell].append(float(cells[cell]))
-                    
+
         self.datasize = len(self.data[1])
         self.memberOf = [-1 for x in range(len(self.data[1]))]
         #
@@ -85,12 +86,10 @@ class kClusterer:
 
         # select random centroids from existing points
         random.seed()
-        self.centroids = [[self.data[i][r]  for i in range(1, len(self.data))]
-                           for r in random.sample(range(len(self.data[0])),
+        self.centroids = [[self.data[i][r] for i in range(1, len(self.data))]
+                          for r in random.sample(range(len(self.data[0])),
                                                  self.k)]
         self.assignPointsToCluster()
-
-            
 
     def updateCentroids(self):
         """Using the points in the clusters, determine the centroid
@@ -98,12 +97,11 @@ class kClusterer:
         members = [self.memberOf.count(i) for i in range(len(self.centroids))]
         self.centroids = [[sum([self.data[k][i]
                                 for i in range(len(self.data[0]))
-                                if self.memberOf[i] == centroid])/members[centroid]
+                                if self.memberOf[i] == centroid]) /
+                           members[centroid]
                            for k in range(1, len(self.data))]
-                          for centroid in range(len(self.centroids))] 
-            
-        
-    
+                          for centroid in range(len(self.centroids))]
+
     def assignPointToCluster(self, i):
         """ assign point to cluster based on distance from centroids"""
         min = 999999
@@ -126,9 +124,7 @@ class kClusterer:
         self.sse = 0
         self.memberOf = [self.assignPointToCluster(i)
                          for i in range(len(self.data[1]))]
-        
 
-        
     def euclideanDistance(self, i, j):
         """ compute distance of point i from centroid j"""
         sumSquares = 0
@@ -141,10 +137,11 @@ class kClusterer:
         As you can see this method repeatedly
             updates the centroids by computing the mean point of each cluster
             re-assign the points to clusters based on these new centroids
-        until the number of points that change cluster membership is less than 1%.
+        until the number of points that change cluster membership is less
+        than 1%.
         """
         done = False
- 
+
         while not done:
             self.iterationNumber += 1
             self.updateCentroids()
@@ -152,20 +149,20 @@ class kClusterer:
             #
             # we are done if fewer than 1% of the points change clusters
             #
-            if float(self.pointsChanged) / len(self.memberOf) <  0.01:
+            if float(self.pointsChanged) / len(self.memberOf) < 0.01:
                 done = True
         print("Final SSE: %f" % self.sse)
 
     def showMembers(self):
         """Display the results"""
         for centroid in range(len(self.centroids)):
-             print ("\n\nClass %i\n========" % centroid)
-             for name in [self.data[0][i]  for i in range(len(self.data[0]))
-                          if self.memberOf[i] == centroid]:
-                 print (name)
-        
+            print ("\n\nClass %i\n========" % centroid)
+            for name in [self.data[0][i] for i in range(len(self.data[0]))
+                         if self.memberOf[i] == centroid]:
+                print (name)
+
 ##
-## RUN THE K-MEANS CLUSTERER ON THE DOG DATA USING K = 3
+# RUN THE K-MEANS CLUSTERER ON THE DOG DATA USING K = 3
 ###
 # change the path in the following to match where dogs.csv is on your machine
 km = kClusterer('../../data/dogs.csv', 3)

@@ -1,5 +1,8 @@
 from __future__ import print_function
-import os, codecs, math
+import os
+import codecs
+import math
+
 
 class BayesText:
 
@@ -22,7 +25,7 @@ class BayesText:
             self.stopwords[line.strip()] = 1
         f.close()
         categories = os.listdir(trainingdir)
-        #filter out files that are not directories
+        # filter out files that are not directories
         self.categories = [filename for filename in categories
                            if os.path.isdir(trainingdir + filename)]
         print("Counting ...")
@@ -56,7 +59,6 @@ class BayesText:
                 self.prob[category][word] = (float(count + 1)
                                              / denominator)
         print ("DONE TRAINING\n\n")
-                    
 
     def train(self, trainingdir, category):
         """counts word occurrences for a particular category"""
@@ -65,7 +67,7 @@ class BayesText:
         counts = {}
         total = 0
         for file in files:
-            #print(currentdir + '/' + file)
+            # print(currentdir + '/' + file)
             f = codecs.open(currentdir + '/' + file, 'r', 'iso8859-1')
             for line in f:
                 tokens = line.split()
@@ -73,7 +75,7 @@ class BayesText:
                     # get rid of punctuation and lowercase token
                     token = token.strip('\'".,?:-')
                     token = token.lower()
-                    if token != '' and not token in self.stopwords:
+                    if token != '' and token not in self.stopwords:
                         self.vocabulary.setdefault(token, 0)
                         self.vocabulary[token] += 1
                         counts.setdefault(token, 0)
@@ -81,8 +83,7 @@ class BayesText:
                         total += 1
             f.close()
         return(counts, total)
-                    
-                    
+
     def classify(self, filename):
         results = {}
         for category in self.categories:
@@ -91,7 +92,7 @@ class BayesText:
         for line in f:
             tokens = line.split()
             for token in tokens:
-                #print(token)
+                # print(token)
                 token = token.strip('\'".,?:-').lower()
                 if token in self.vocabulary:
                     for category in self.categories:
@@ -101,7 +102,7 @@ class BayesText:
                             self.prob[category][token])
         f.close()
         results = list(results.items())
-        results.sort(key=lambda tuple: tuple[1], reverse = True)
+        results.sort(key=lambda tuple: tuple[1], reverse=True)
         # for debugging I can change this to give me the entire list
         return results[0][0]
 
@@ -121,7 +122,7 @@ class BayesText:
         organized into subdirectories--each subdir is a classification
         category"""
         categories = os.listdir(testdir)
-        #filter out files that are not directories
+        # filter out files that are not directories
         categories = [filename for filename in categories if
                       os.path.isdir(testdir + filename)]
         correct = 0
@@ -134,7 +135,7 @@ class BayesText:
             total += catTotal
         print("\n\nAccuracy is  %f%%  (%i test instances)" %
               ((float(correct) / total) * 100, total))
-            
+
 # change these to match your directory structure
 baseDirectory = "/Users/raz/Dropbox/guide/data/20news-bydate/"
 trainingDir = baseDirectory + "20news-bydate-train/"

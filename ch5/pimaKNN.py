@@ -1,5 +1,5 @@
-#  
-# 
+#
+#
 #  Nearest Neighbor Classifier for Pima dataset
 #
 #
@@ -11,6 +11,7 @@
 import heapq
 import random
 
+
 class Classifier:
     def __init__(self, bucketPrefix, testBucketNumber, dataFormat, k):
 
@@ -21,11 +22,11 @@ class Classifier:
 
         "class	num	num	num	num	num	comment"
         """
-   
+
         self.medianAndDeviation = []
         self.k = k
         # reading the data in from the file
- 
+
         self.format = dataFormat.strip().split('\t')
         self.data = []
         # for each of the buckets numbered 1 through 10:
@@ -54,13 +55,10 @@ class Classifier:
         # now normalize the data
         for i in range(self.vlen):
             self.normalizeColumn(i)
-        
 
-        
-    
     ##################################################
     ###
-    ###  CODE TO COMPUTE THE MODIFIED STANDARD SCORE
+    #  CODE TO COMPUTE THE MODIFIED STANDARD SCORE
 
     def getMedian(self, alist):
         """return median of alist"""
@@ -70,13 +68,12 @@ class Classifier:
         length = len(alist)
         if length % 2 == 1:
             # length of list is odd so return middle element
-            return blist[int(((length + 1) / 2) -  1)]
+            return blist[int(((length + 1) / 2) - 1)]
         else:
             # length of list is even so compute midpoint
             v1 = blist[int(length / 2)]
-            v2 =blist[(int(length / 2) - 1)]
+            v2 = blist[(int(length / 2) - 1)]
             return (v1 + v2) / 2.0
-        
 
     def getAbsoluteStandardDeviation(self, alist, median):
         """given alist and median return absolute standard deviation"""
@@ -85,18 +82,16 @@ class Classifier:
             sum += abs(item - median)
         return sum / len(alist)
 
-
     def normalizeColumn(self, columnNumber):
-       """given a column number, normalize that column in self.data"""
-       # first extract values to list
-       col = [v[1][columnNumber] for v in self.data]
-       median = self.getMedian(col)
-       asd = self.getAbsoluteStandardDeviation(col, median)
-       #print("Median: %f   ASD = %f" % (median, asd))
-       self.medianAndDeviation.append((median, asd))
-       for v in self.data:
-           v[1][columnNumber] = (v[1][columnNumber] - median) / asd
-
+        """given a column number, normalize that column in self.data"""
+        # first extract values to list
+        col = [v[1][columnNumber] for v in self.data]
+        median = self.getMedian(col)
+        asd = self.getAbsoluteStandardDeviation(col, median)
+        # print("Median: %f   ASD = %f" % (median, asd))
+        self.medianAndDeviation.append((median, asd))
+        for v in self.data:
+            v[1][columnNumber] = (v[1][columnNumber] - median) / asd
 
     def normalizeVector(self, v):
         """We have stored the median and asd for each column.
@@ -107,13 +102,13 @@ class Classifier:
             vector[i] = (vector[i] - median) / asd
         return vector
     ###
-    ### END NORMALIZATION
+    # END NORMALIZATION
     ##################################################
 
     def testBucket(self, bucketPrefix, bucketNumber):
         """Evaluate the classifier with data from the file
         bucketPrefix-bucketNumber"""
-        
+
         filename = "%s-%02i" % (bucketPrefix, bucketNumber)
         f = open(filename)
         lines = f.readlines()
@@ -124,59 +119,59 @@ class Classifier:
             vector = []
             classInColumn = -1
             for i in range(len(self.format)):
-                  if self.format[i] == 'num':
-                      vector.append(float(data[i]))
-                  elif self.format[i] == 'class':
-                      classInColumn = i
+                if self.format[i] == 'num':
+                    vector.append(float(data[i]))
+                elif self.format[i] == 'class':
+                    classInColumn = i
             theRealClass = data[classInColumn]
-            #print("REAL ", theRealClass)
+            # print("REAL ", theRealClass)
             classifiedAs = self.classify(vector)
             totals.setdefault(theRealClass, {})
             totals[theRealClass].setdefault(classifiedAs, 0)
             totals[theRealClass][classifiedAs] += 1
         return totals
 
-
-
     def manhattan(self, vector1, vector2):
         """Computes the Manhattan distance."""
         return sum(map(lambda v1, v2: abs(v1 - v2), vector1, vector2))
 
-
     def nearestNeighbor(self, itemVector):
         """return nearest neighbor to itemVector"""
-        return min([ (self.manhattan(itemVector, item[1]), item)
-                     for item in self.data])
-    
+        return min([(self.manhattan(itemVector, item[1]), item)
+                    for item in self.data])
+
     def knn(self, itemVector):
         """returns the predicted class of itemVector using k
         Nearest Neighbors"""
         # changed from min to heapq.nsmallest to get the
         # k closest neighbors
-        neighbors = heapq.nsmallest(self.k,
-                                   [(self.manhattan(itemVector, item[1]), item)
-                     for item in self.data])
+        neighbors = heapq.nsmallest(
+            self.k,
+            [(self.manhattan(itemVector, item[1]), item)
+             for item in self.data]
+        )
         # each neighbor gets a vote
         results = {}
-        for neighbor in neighbors: 
+        for neighbor in neighbors:
             theClass = neighbor[1][0]
             results.setdefault(theClass, 0)
             results[theClass] += 1
-        resultList = sorted([(i[1], i[0]) for i in results.items()], reverse=True)
-        #get all the classes that have the maximum votes
+        resultList = sorted(
+            [(i[1], i[0]) for i in results.items()], reverse=True
+        )
+        # get all the classes that have the maximum votes
         maxVotes = resultList[0][0]
         possibleAnswers = [i[1] for i in resultList if i[0] == maxVotes]
         # randomly select one of the classes that received the max votes
         answer = random.choice(possibleAnswers)
-        return( answer)
-    
+        return (answer)
+
     def classify(self, itemVector):
         """Return class we think item Vector is in"""
         # k represents how many nearest neighbors to use
-        return(self.knn(self.normalizeVector(itemVector)))                             
- 
+        return(self.knn(self.normalizeVector(itemVector)))
 
-       
+
 def tenfold(bucketPrefix, dataFormat, k):
     results = {}
     for i in range(1, 11):
@@ -187,12 +182,12 @@ def tenfold(bucketPrefix, dataFormat, k):
             for (ckey, cvalue) in value.items():
                 results[key].setdefault(ckey, 0)
                 results[key][ckey] += cvalue
-                
+
     # now print results
     categories = list(results.keys())
     categories.sort()
-    print(   "\n       Classified as: ")
-    header =    "        "
+    print("\n       Classified as: ")
+    header = "        "
     subheader = "      +"
     for category in categories:
         header += "% 2s   " % category
@@ -202,7 +197,7 @@ def tenfold(bucketPrefix, dataFormat, k):
     total = 0.0
     correct = 0.0
     for category in categories:
-        row = " %s    |" % category 
+        row = " %s    |" % category
         for c2 in categories:
             if c2 in results[category]:
                 count = results[category][c2]
@@ -214,7 +209,7 @@ def tenfold(bucketPrefix, dataFormat, k):
                 correct += count
         print(row)
     print(subheader)
-    print("\n%5.3f percent correct" %((correct * 100) / total))
+    print("\n%5.3f percent correct" % ((correct * 100) / total))
     print("total of %i instances" % total)
 
 print("SMALL DATA SET")

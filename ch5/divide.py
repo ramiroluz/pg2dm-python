@@ -1,6 +1,7 @@
 # divide data into 10 buckets
 import random
 
+
 def buckets(filename, bucketName, separator, classColumn):
     """the original data is in the file named filename
     bucketName is the prefix for all the bucket names
@@ -24,10 +25,10 @@ def buckets(filename, bucketName, separator, classColumn):
     # initialize the buckets
     buckets = []
     for i in range(numberOfBuckets):
-        buckets.append([])       
+        buckets.append([])
     # now for each category put the data into the buckets
     for k in data.keys():
-        #randomize order of instances for each class
+        # randomize order of instances for each class
         random.shuffle(data[k])
         bNum = 0
         # divide into buckets
@@ -42,5 +43,5 @@ def buckets(filename, bucketName, separator, classColumn):
             f.write(item)
         f.close()
 
-# example of how to use this code          
-buckets("pimaSmall.txt", 'pimaSmall',',',8)
+# example of how to use this code
+buckets("pimaSmall.txt", 'pimaSmall', ',', 8)

@@ -1,5 +1,8 @@
 from __future__ import print_function
-import os, codecs, math
+import os
+import codecs
+import math
+
 
 class BayesText:
 
@@ -22,12 +25,12 @@ class BayesText:
             self.stopwords[line.strip()] = 1
         f.close()
         categories = os.listdir(trainingdir)
-        #filter out files that are not directories
+        # filter out files that are not directories
         self.categories = [filename for filename in categories
                            if os.path.isdir(trainingdir + filename)]
         print("Counting ...")
         for category in self.categories:
-            #print('    ' + category)
+            # print('    ' + category)
             (self.prob[category],
              self.totals[category]) = self.train(trainingdir, category,
                                                  ignoreBucket)
@@ -45,9 +48,9 @@ class BayesText:
             del self.vocabulary[word]
         # now compute probabilities
         vocabLength = len(self.vocabulary)
-        #print("Computing probabilities:")
+        # print("Computing probabilities:")
         for category in self.categories:
-            #print('    ' + category)
+            # print('    ' + category)
             denominator = self.totals[category] + vocabLength
             for word in self.vocabulary:
                 if word in self.prob[category]:
@@ -56,8 +59,7 @@ class BayesText:
                     count = 1
                 self.prob[category][word] = (float(count + 1)
                                              / denominator)
-        #print ("DONE TRAINING\n\n")
-                    
+        # print ("DONE TRAINING\n\n")
 
     def train(self, trainingdir, category, bucketNumberToIgnore):
         """counts word occurrences for a particular category"""
@@ -70,16 +72,17 @@ class BayesText:
             if directory != ignore:
                 currentBucket = trainingdir + category + "/" + directory
                 files = os.listdir(currentBucket)
-                #print("   " + currentBucket)
+                # print("   " + currentBucket)
                 for file in files:
-                    f = codecs.open(currentBucket + '/' + file, 'r', 'iso8859-1')
+                    f = codecs.open(
+                        currentBucket + '/' + file, 'r', 'iso8859-1')
                     for line in f:
                         tokens = line.split()
                         for token in tokens:
                             # get rid of punctuation and lowercase token
                             token = token.strip('\'".,?:-')
                             token = token.lower()
-                            if token != '' and not token in self.stopwords:
+                            if token != '' and token not in self.stopwords:
                                 self.vocabulary.setdefault(token, 0)
                                 self.vocabulary[token] += 1
                                 counts.setdefault(token, 0)
@@ -87,8 +90,7 @@ class BayesText:
                                 total += 1
                     f.close()
         return(counts, total)
-                    
-                    
+
     def classify(self, filename):
         results = {}
         for category in self.categories:
@@ -97,7 +99,7 @@ class BayesText:
         for line in f:
             tokens = line.split()
             for token in tokens:
-                #print(token)
+                # print(token)
                 token = token.strip('\'".,?:-').lower()
                 if token in self.vocabulary:
                     for category in self.categories:
@@ -107,14 +109,14 @@ class BayesText:
                             self.prob[category][token])
         f.close()
         results = list(results.items())
-        results.sort(key=lambda tuple: tuple[1], reverse = True)
+        results.sort(key=lambda tuple: tuple[1], reverse=True)
         # for debugging I can change this to give me the entire list
         return results[0][0]
 
     def testCategory(self, direc, category, bucketNumber):
         results = {}
         directory = direc + ("%i/" % bucketNumber)
-        #print("Testing " + directory)
+        # print("Testing " + directory)
         files = os.listdir(directory)
         total = 0
         correct = 0
@@ -123,8 +125,8 @@ class BayesText:
             result = self.classify(directory + file)
             results.setdefault(result, 0)
             results[result] += 1
-            #if result == category:
-            #               correct += 1
+            # if result == category:
+            #     correct += 1
         return results
 
     def test(self, testdir, bucketNumber):
@@ -133,20 +135,21 @@ class BayesText:
         category"""
         results = {}
         categories = os.listdir(testdir)
-        #filter out files that are not directories
+        # filter out files that are not directories
         categories = [filename for filename in categories if
                       os.path.isdir(testdir + filename)]
         correct = 0
         total = 0
         for category in categories:
-            #print(".", end="")
+            # print(".", end="")
             results[category] = self.testCategory(
                 testdir + category + '/', category, bucketNumber)
         return results
 
+
 def tenfold(dataPrefix, stoplist):
     results = {}
-    for i in range(0,10):
+    for i in range(0, 10):
         bT = BayesText(dataPrefix, stoplist, i)
         r = bT.test(theDir, i)
         for (key, value) in r.items():
@@ -156,18 +159,18 @@ def tenfold(dataPrefix, stoplist):
                 results[key][ckey] += cvalue
                 categories = list(results.keys())
     categories.sort()
-    print(   "\n       Classified as: ")
-    header =    "          "
+    print("\n       Classified as: ")
+    header = "          "
     subheader = "        +"
     for category in categories:
         header += "% 2s   " % category
         subheader += "-----+"
-    print (header)
-    print (subheader)
+    print(header)
+    print(subheader)
     total = 0.0
     correct = 0.0
     for category in categories:
-        row = " %s    |" % category 
+        row = " %s    |" % category
         for c2 in categories:
             if c2 in results[category]:
                 count = results[category][c2]
@@ -179,7 +182,7 @@ def tenfold(dataPrefix, stoplist):
                 correct += count
         print(row)
     print(subheader)
-    print("\n%5.3f percent correct" %((correct * 100) / total))
+    print("\n%5.3f percent correct" % ((correct * 100) / total))
     print("total of %i instances" % total)
 
 # change these to match your directory structure

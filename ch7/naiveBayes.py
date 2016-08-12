@@ -1,5 +1,5 @@
-  
-# 
+
+#
 #  Naive Bayes Classifier chapter 6
 #
 
@@ -15,14 +15,13 @@ class Classifier:
         for the iHealth data the format is:
         "attr	attr	attr	attr	class"
         """
-   
+
         total = 0
         classes = {}
         counts = {}
-        
-        
+
         # reading the data in from the file
-        
+
         self.format = dataFormat.strip().split('\t')
         self.prior = {}
         self.conditional = {}
@@ -42,7 +41,7 @@ class Classifier:
                         if self.format[i] == 'num':
                             vector.append(float(fields[i]))
                         elif self.format[i] == 'attr':
-                            vector.append(fields[i])                           
+                            vector.append(fields[i])
                         elif self.format[i] == 'comment':
                             ignore.append(fields[i])
                         elif self.format[i] == 'class':
@@ -59,7 +58,7 @@ class Classifier:
                         counts[category].setdefault(col, {})
                         counts[category][col].setdefault(columnValue, 0)
                         counts[category][col][columnValue] += 1
-        
+
         #
         # ok done counting. now compute probabilities
         #
@@ -71,20 +70,18 @@ class Classifier:
         # now compute conditional probabilities p(D|h)
         #
         for (category, columns) in counts.items():
-              self.conditional.setdefault(category, {})
-              for (col, valueCounts) in columns.items():
-                  self.conditional[category].setdefault(col, {})
-                  for (attrValue, count) in valueCounts.items():
-                      self.conditional[category][col][attrValue] = (
-                          count / classes[category])
-        self.tmp =  counts               
-        
+            self.conditional.setdefault(category, {})
+            for (col, valueCounts) in columns.items():
+                self.conditional[category].setdefault(col, {})
+                for (attrValue, count) in valueCounts.items():
+                    self.conditional[category][col][attrValue] = (
+                        count / classes[category])
+        self.tmp = counts
 
-           
     def testBucket(self, bucketPrefix, bucketNumber):
         """Evaluate the classifier with data from the file
         bucketPrefix-bucketNumber"""
-        
+
         filename = "%s-%02i" % (bucketPrefix, bucketNumber)
         f = open(filename)
         lines = f.readlines()
@@ -97,12 +94,12 @@ class Classifier:
             vector = []
             classInColumn = -1
             for i in range(len(self.format)):
-                  if self.format[i] == 'num':
-                      vector.append(float(data[i]))
-                  elif self.format[i] == 'attr':
-                      vector.append(data[i])
-                  elif self.format[i] == 'class':
-                      classInColumn = i
+                if self.format[i] == 'num':
+                    vector.append(float(data[i]))
+                elif self.format[i] == 'attr':
+                    vector.append(data[i])
+                elif self.format[i] == 'class':
+                    classInColumn = i
             theRealClass = data[classInColumn]
             classifiedAs = self.classify(vector)
             totals.setdefault(theRealClass, {})
@@ -110,8 +107,6 @@ class Classifier:
             totals[theRealClass][classifiedAs] += 1
         return totals
 
-
-    
     def classify(self, itemVector):
         """Return class we think item Vector is in"""
         results = []
@@ -119,7 +114,7 @@ class Classifier:
             prob = prior
             col = 1
             for attrValue in itemVector:
-                if not attrValue in self.conditional[category][col]:
+                if attrValue not in self.conditional[category][col]:
                     # we did not find any instances of this attribute value
                     # occurring with this category so prob = 0
                     prob = 0
@@ -129,7 +124,7 @@ class Classifier:
             results.append((prob, category))
         # return the category with the highest probability
         return(max(results)[1])
- 
+
 
 def tenfold(bucketPrefix, dataFormat):
     results = {}
@@ -141,22 +136,22 @@ def tenfold(bucketPrefix, dataFormat):
             for (ckey, cvalue) in value.items():
                 results[key].setdefault(ckey, 0)
                 results[key][ckey] += cvalue
-                
+
     # now print results
     categories = list(results.keys())
     categories.sort()
-    print(   "\n            Classified as: ")
-    header =    "             "
+    print("\n            Classified as: ")
+    header = "             "
     subheader = "               +"
     for category in categories:
         header += "% 10s   " % category
         subheader += "-------+"
-    print (header)
-    print (subheader)
+    print(header)
+    print(subheader)
     total = 0.0
     correct = 0.0
     for category in categories:
-        row = " %10s    |" % category 
+        row = " %10s    |" % category
         for c2 in categories:
             if c2 in results[category]:
                 count = results[category][c2]
@@ -168,18 +163,29 @@ def tenfold(bucketPrefix, dataFormat):
                 correct += count
         print(row)
     print(subheader)
-    print("\n%5.3f percent correct" %((correct * 100) / total))
+    print("\n%5.3f percent correct" % ((correct * 100) / total))
     print("total of %i instances" % total)
 
-tenfold("house-votes/hv", "class\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr")
-#c = Classifier("house-votes/hv", 0,
-#                       "class\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr")
+tenfold(
+    "house-votes/hv",
+    "class\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\t"
+    "attr\tattr\tattr\tattr\tattr\tattr"
+)
+# c = Classifier(
+#     "house-votes/hv",
+#     0,
+#     "class\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\t"
+#     "attr\tattr\tattr\tattr\tattr\tattr\tattr"
+# )
 
-#c = Classifier("iHealth/i", 10,
-#                       "attr\tattr\tattr\tattr\tclass")
-#print(c.classify(['health', 'moderate', 'moderate', 'yes']))
+# c = Classifier("iHealth/i", 10, "attr\tattr\tattr\tattr\tclass")
+# print(c.classify(['health', 'moderate', 'moderate', 'yes']))
 
-#c = Classifier("house-votes-filtered/hv", 5, "class\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr")
-#t = c.testBucket("house-votes-filtered/hv", 5)
-#print(t)
-
+# c = Classifier(
+#     "house-votes-filtered/hv",
+#     5,
+#     "class\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\tattr\t"
+#     "attr\tattr\tattr\tattr\tattr\tattr\tattr"
+# )
+# t = c.testBucket("house-votes-filtered/hv", 5)
+# print(t)

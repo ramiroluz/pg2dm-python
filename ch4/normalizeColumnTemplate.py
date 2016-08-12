@@ -1,5 +1,5 @@
 #
-#  normalize column 
+#  normalize column
 #
 #  This is the template for you to write and test the method
 #
@@ -13,14 +13,12 @@
 #  Ron Zacharski
 #
 
-   
-            
 
 class Classifier:
 
     def __init__(self, filename):
 
-        self.medianAndDeviation = []       
+        self.medianAndDeviation = []
         # reading the data in from the file
         f = open(filename)
         lines = f.readlines()
@@ -45,9 +43,6 @@ class Classifier:
         # now normalize the data
         for i in range(self.vlen):
             self.normalizeColumn(i)
-        
-
-    
 
     def getMedian(self, alist):
         """return median of alist"""
@@ -57,13 +52,12 @@ class Classifier:
         length = len(alist)
         if length % 2 == 1:
             # length of list is odd so return middle element
-            return blist[int(((length + 1) / 2) -  1)]
+            return blist[int(((length + 1) / 2) - 1)]
         else:
             # length of list is even so compute midpoint
             v1 = blist[int(length / 2)]
-            v2 =blist[(int(length / 2) - 1)]
+            v2 = blist[(int(length / 2) - 1)]
             return (v1 + v2) / 2.0
-        
 
     def getAbsoluteStandardDeviation(self, alist, median):
         """given alist and median return absolute standard deviation"""
@@ -72,24 +66,19 @@ class Classifier:
             sum += abs(item - median)
         return sum / len(alist)
 
-
     ##################################################
     ###
-    ### FINISH WRITING THIS METHOD
+    # FINISH WRITING THIS METHOD
 
-    
     def normalizeColumn(self, columnNumber):
-       """given a column number, normalize that column in self.data
-       using the Modified Standard Score"""
+        """given a column number, normalize that column in self.data
+        using the Modified Standard Score"""
 
-       """ TO BE DONE"""
+        """ TO BE DONE"""
 
-
-    
     ###
-    ### 
+    #
     ##################################################
-
 
 
 def unitTest():
@@ -104,8 +93,12 @@ def unitTest():
     assert(round(m1, 3) == 65.5)
     m2 = classifier.getMedian(list2)
     assert(round(m2, 3) == 107)
-    assert(round(classifier.getAbsoluteStandardDeviation(list1, m1),3) == 5.95)
-    assert(round(classifier.getAbsoluteStandardDeviation(list2, m2),3) == 33.65)
+    assert(
+        round(classifier.getAbsoluteStandardDeviation(list1, m1), 3) == 5.95
+    )
+    assert(
+        round(classifier.getAbsoluteStandardDeviation(list2, m2), 3) == 33.65
+    )
     print("getMedian and getAbsoluteStandardDeviation are OK")
 
     # test normalizeColumn
@@ -116,11 +109,10 @@ def unitTest():
              [-1.2605, -0.8915], [0.7563, 0.0297], [0.7563, 1.4264],
              [0.7563, 1.4264], [-0.4202, 0.0297], [-0.084, -0.0297],
              [0.084, -0.2972], [-0.7563, -0.9212]]
-    
 
     for i in range(len(list1)):
-        assert(round(classifier.data[i][1][0],4) == list1[i][0])
-        assert(round(classifier.data[i][1][1],4) == list1[i][1])
+        assert(round(classifier.data[i][1][0], 4) == list1[i][0])
+        assert(round(classifier.data[i][1][1], 4) == list1[i][1])
     print("normalizeColumn is OK")
-     
+
 unitTest()

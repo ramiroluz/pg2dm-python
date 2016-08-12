@@ -1,4 +1,7 @@
-import os, codecs, math
+import os
+import codecs
+import math
+
 
 class BayesText:
 
@@ -21,7 +24,7 @@ class BayesText:
             self.stopwords[line.strip()] = 1
         f.close()
         categories = os.listdir(trainingdir)
-        #filter out files that are not directories
+        # filter out files that are not directories
         self.categories = [filename for filename in categories
                            if os.path.isdir(trainingdir + filename)]
         print("Counting ...")
@@ -54,7 +57,6 @@ class BayesText:
                     count = 1
                 self.prob[category][word] = (count + 1) / denominator
         print ("DONE TRAINING\n\n")
-                    
 
     def train(self, trainingdir, category):
         """counts word occurrences for a particular category"""
@@ -63,7 +65,7 @@ class BayesText:
         counts = {}
         total = 0
         for file in files:
-            #print(currentdir + '/' + file)
+            # print(currentdir + '/' + file)
             f = codecs.open(currentdir + '/' + file, 'r', 'iso8859-1')
             for line in f:
                 tokens = line.split()
@@ -71,7 +73,7 @@ class BayesText:
                     # get rid of punctuation and lowercase token
                     token = token.strip('\'".,?:-')
                     token = token.lower()
-                    if token != '' and not token in self.stopwords:
+                    if token != '' and token not in self.stopwords:
                         self.vocabulary.setdefault(token, 0)
                         self.vocabulary[token] += 1
                         counts.setdefault(token, 0)
@@ -79,8 +81,7 @@ class BayesText:
                         total += 1
             f.close()
         return(counts, total)
-                    
-                    
+
     def classify(self, filename):
         results = {}
         for category in self.categories:
@@ -89,7 +90,7 @@ class BayesText:
         for line in f:
             tokens = line.split()
             for token in tokens:
-                #print(token)
+                # print(token)
                 token = token.strip('\'".,?:-').lower()
                 if token in self.vocabulary:
                     for category in self.categories:
@@ -99,22 +100,33 @@ class BayesText:
                             self.prob[category][token])
         f.close()
         results = list(results.items())
-        results.sort(key=lambda tuple: tuple[1], reverse = True)
+        results.sort(key=lambda tuple: tuple[1], reverse=True)
         # for debugging I can change this to give me the entire list
         return results[0][0]
 
-              
+
 # change these to match your directory structure
-trainingDir = "/Users/raz/Dropbox/guide/data/20news-bydate/20news-bydate-train/"
+trainingDir = (
+    "/Users/raz/Dropbox/guide/data/20news-bydate/20news-bydate-train/"
+)
+
 # (just create an empty file to use as a stoplist file.)
 stoplistfile = "/Users/raz/Dropbox/guide/data/20news-bydate/emptyStoplist.txt"
 
 bT = BayesText(trainingDir, stoplistfile)
 print("Running Test ...")
-result = bT.classify("/Users/raz/Dropbox/guide/data/20news-bydate/20news-bydate-test/rec.motorcycles/104673")
+result = bT.classify(
+    "/Users/raz/Dropbox/guide/data/20news-bydate/20news-bydate-test/"
+    "rec.motorcycles/104673"
+)
 print(result)
-result = bT.classify("/Users/raz/Dropbox/guide/data/20news-bydate/20news-bydate-test/sci.med/59246")
+result = bT.classify(
+    "/Users/raz/Dropbox/guide/data/20news-bydate/20news-bydate-test/"
+    "sci.med/59246"
+)
 print(result)
-result = bT.classify("/Users/raz/Dropbox/guide/data/20news-bydate/20news-bydate-test/soc.religion.christian/21424")
+result = bT.classify(
+    "/Users/raz/Dropbox/guide/data/20news-bydate/20news-bydate-test/"
+    "soc.religion.christian/21424"
+)
 print(result)
-

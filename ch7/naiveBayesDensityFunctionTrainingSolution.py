@@ -1,5 +1,5 @@
-  
-# 
+
+#
 #  Naive Bayes Classifier chapter 6
 #
 
@@ -7,6 +7,7 @@
 # _____________________________________________________________________
 
 import math
+
 
 class Classifier:
     def __init__(self, bucketPrefix, testBucketNumber, dataFormat):
@@ -17,25 +18,24 @@ class Classifier:
         for the iHealth data the format is:
         "attr	attr	attr	attr	class"
         """
-   
+
         total = 0
         classes = {}
         # counts used for attributes that are not numeric
         counts = {}
         # totals used for attributes that are numereric
-        # we will use these to compute the mean and sample standard deviation for
-        # each attribute - class pair.
+        # we will use these to compute the mean and sample standard deviation
+        # for each attribute - class pair.
         totals = {}
         numericValues = {}
-        
-        
+
         # reading the data in from the file
-        
+
         self.format = dataFormat.strip().split('\t')
-        # 
+        #
         self.prior = {}
         self.conditional = {}
- 
+
         # for each of the buckets numbered 1 through 10:
         for i in range(1, 11):
             # if it is not the bucket we should ignore, read in the data
@@ -53,7 +53,7 @@ class Classifier:
                         if self.format[i] == 'num':
                             nums.append(float(fields[i]))
                         elif self.format[i] == 'attr':
-                            vector.append(fields[i])                           
+                            vector.append(fields[i])
                         elif self.format[i] == 'comment':
                             ignore.append(fields[i])
                         elif self.format[i] == 'class':
@@ -77,12 +77,11 @@ class Classifier:
                     for columnValue in nums:
                         col += 1
                         totals[category].setdefault(col, 0)
-                        #totals[category][col].setdefault(columnValue, 0)
+                        # totals[category][col].setdefault(columnValue, 0)
                         totals[category][col] += columnValue
                         numericValues[category].setdefault(col, [])
                         numericValues[category][col].append(columnValue)
-                    
-        
+
         #
         # ok done counting. now compute probabilities
         #
@@ -94,13 +93,13 @@ class Classifier:
         # now compute conditional probabilities p(h|D)
         #
         for (category, columns) in counts.items():
-              self.conditional.setdefault(category, {})
-              for (col, valueCounts) in columns.items():
-                  self.conditional[category].setdefault(col, {})
-                  for (attrValue, count) in valueCounts.items():
-                      self.conditional[category][col][attrValue] = (
-                          count / classes[category])
-        self.tmp =  counts               
+            self.conditional.setdefault(category, {})
+            for (col, valueCounts) in columns.items():
+                self.conditional[category].setdefault(col, {})
+                for (attrValue, count) in valueCounts.items():
+                    self.conditional[category][col][attrValue] = (
+                        count / classes[category])
+        self.tmp = counts
         #
         # now compute mean and sample standard deviation
         #
@@ -112,9 +111,9 @@ class Classifier:
             for (col, cTotal) in columns.items():
                 self.means[category][col] = cTotal / classes[category]
         # standard deviation
-        
+
         for (category, columns) in numericValues.items():
-            
+
             self.ssd.setdefault(category, {})
             for (col, values) in columns.items():
                 SumOfSquareDifferences = 0
@@ -122,12 +121,14 @@ class Classifier:
                 for value in values:
                     SumOfSquareDifferences += (value - theMean)**2
                 columns[col] = 0
-                self.ssd[category][col] = math.sqrt(SumOfSquareDifferences / (classes[category]  - 1))      
-        
+                self.ssd[category][col] = math.sqrt(
+                    SumOfSquareDifferences / (classes[category] - 1))
 
- # test the code
 
-c = Classifier("pimaSmall/pimaSmall",  1, "num	num	num	num	num	num	num	num	class")
+# test the code
+
+c = Classifier(
+    "pimaSmall/pimaSmall", 1, "num	num	num	num	num	num	num	num	class")
 
 # test means computation
 assert(c.means['1'][1] == 5.25)

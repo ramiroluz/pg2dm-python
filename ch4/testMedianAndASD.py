@@ -5,15 +5,14 @@
 #
 # also download the file athletesTrainingSet.txt, which you should
 # put in the same folder as this file.
-   
-            
+
 
 class Classifier:
 
     def __init__(self, filename):
 
         self.medianAndDeviation = []
-        
+
         # reading the data in from the file
         f = open(filename)
         lines = f.readlines()
@@ -33,20 +32,16 @@ class Classifier:
                     classification = fields[i]
             self.data.append((classification, vector, ignore))
         self.rawData = list(self.data)
-        
 
-        
-    
     ##################################################
     ###
-    ###  FINISH THE FOLLOWING TWO METHODS
+    # FINISH THE FOLLOWING TWO METHODS
 
     def getMedian(self, alist):
         """return median of alist"""
 
         """TO BE DONE"""
         return 0
-        
 
     def getAbsoluteStandardDeviation(self, alist, median):
         """given alist and median return absolute standard deviation"""
@@ -54,11 +49,9 @@ class Classifier:
         """TO BE DONE"""
         return 0
 
-    
     ###
-    ### 
+    #
     ##################################################
-
 
 
 def unitTest():
@@ -83,8 +76,7 @@ def unitTest():
     assert(round(asd2, 3) == 7.5)
     assert(round(asd3, 3) == 0)
     assert(round(asd4, 3) == 1.5)
-    
+
     print("getMedian and getAbsoluteStandardDeviation work correctly")
 
 unitTest()
-    
